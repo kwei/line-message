@@ -1,6 +1,6 @@
 import {NextApiResponse} from "next";
 import {Client, WebhookEvent} from "@line/bot-sdk";
-import {NextRequest, NextResponse} from "next/server";
+import {NextResponse} from "next/server";
 
 const config = {
     channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN ?? '',
@@ -9,10 +9,11 @@ const config = {
 
 const client = new Client(config)
 
-export async function POST(req: NextRequest, res: NextApiResponse) {
-    console.log(1, req)
+export async function POST(req: Request, res: NextApiResponse) {
+    console.log(1)
     const body = await req.text()
-    console.log(2, body)
+    const body2 = await req.json()
+    console.log(2, "1: ", body, ", 2: ", body2)
     const bodyObj = JSON.parse(body)
     console.log(3, bodyObj)
     const events: WebhookEvent[] = bodyObj.events
