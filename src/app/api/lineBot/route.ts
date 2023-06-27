@@ -1,5 +1,6 @@
 import {NextApiResponse} from "next"
 import {Client, WebhookEvent} from "@line/bot-sdk"
+import liff from "@line/liff"
 import {NextResponse} from "next/server"
 import {Configuration, OpenAIApi} from "openai"
 import { MongoClient } from "mongodb"
@@ -88,7 +89,11 @@ async function handleEvent(event: WebhookEvent) {
                     const _day = date.getDate()
                     const _hour = date.getHours()
                     const _min = date.getMinutes()
+
                     const userProfile = await client.getProfile(event.source.userId ?? '')
+                    await initializeLiff()
+                    await login()
+
                     const _data = {
                         "userId": userProfile.userId,
                         "date": `${_year}/${_month > 10 ? _month : '0'+_month}/${_day > 10 ? _day : '0'+_day}`,
@@ -130,4 +135,40 @@ async function readStream(stream: ReadableStream | null): Promise<string> {
         result += chunk
     }
     return result
+}
+
+async function initializeLiff() {
+    try {
+        await liff.init({ liffId: process.env.LINE_LIFF_ID ?? '' });
+    } catch (error) {
+        console.error('LIFF initialization failed', error);
+    }
+}
+
+async function login() {
+    try {
+        await liff.login();
+        const accessToken = liff.getAccessToken()
+        console.log("accessToken: ", accessToken)
+        await getUserInfo(accessToken)
+    } catch (error) {
+        console.error('Login failed', error)
+    }
+}
+
+async function getUserInfo(accessToken: string | null) {
+    try {
+        const response = await fetch('https://api.line.me/v2/profile', {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        }).then(res => {
+            if (res.ok) return res.json()
+        }).catch(e => {
+            console.log(e)
+        })
+        const userInfo = response.data
+        console.log('User Info:', userInfo)
+        return userInfo
+    } catch (error) {
+        console.error('Failed to retrieve user info', error)
+    }
 }
