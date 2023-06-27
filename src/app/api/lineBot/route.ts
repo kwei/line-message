@@ -96,7 +96,7 @@ async function handleEvent(event: WebhookEvent) {
                         "type": gptRes,
                         "price": matchRes[1]
                     }).then(() => {
-                        res2ClientText.text = `已幫您記錄至 https://line-bucket.vercel.app/Record ，目前記錄的消費種類為${gptRes}，若需要更改請至網站進行調整。`
+                        res2ClientText.text = `已幫您記錄至 https://line-bucket.vercel.app/Record ，目前記錄的消費種類為 ${gptRes}，若需要更改請至網站進行調整。`
                     }).catch(() => {
                         res2ClientText.text ='無法成功新增該筆記錄，您可以去問問開發者是不是在睡覺 :)'
                     })
