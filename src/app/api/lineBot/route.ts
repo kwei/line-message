@@ -10,7 +10,8 @@ const config = {
 const client = new Client(config)
 
 export async function POST(req: NextRequest, res: NextApiResponse) {
-    const events: WebhookEvent[] = await req.json()
+    const body = await req.json()
+    const events: WebhookEvent[] = body.events
 
     try {
         await Promise.all(events.map(handleEvent))
