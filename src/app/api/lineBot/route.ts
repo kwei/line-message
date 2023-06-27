@@ -83,14 +83,19 @@ async function handleEvent(event: WebhookEvent) {
                     const db = mongodbClient.db('spendingRecord')
                     const collections = db.collection('meta')
                     const date = new Date()
+                    const _year = date.getFullYear()
+                    const _month = date.getMonth()+1
+                    const _day = date.getDate()
+                    const _hour = date.getHours()
+                    const _min = date.getMinutes()
                     const userProfile = await client.getProfile(event.source.userId ?? '')
                     const _data = {
                         "userId": userProfile.userId,
-                        "date": `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}`,
-                        "time": `${date.getHours()}:${date.getMinutes()}`,
+                        "date": `${_year}/${_month > 10 ? _month : '0'+_month}/${_day > 10 ? _day : '0'+_day}`,
+                        "time": `${_hour > 10 ? _hour : '0'+_hour}:${_min > 10 ? _min : '0'+_min}`,
                         "item": matchRes[2],
                         "type": gptRes,
-                        "price": matchRes[1]
+                        "price": Number(matchRes[1])
                     }
                     console.log("To be saved: ", _data)
                     await collections.insertOne(_data).then((data) => {
