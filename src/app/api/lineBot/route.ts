@@ -11,12 +11,13 @@ const client = new Client(config)
 
 export async function POST(req: Request, res: NextApiResponse) {
     console.log(1)
-    const body = await req.text()
+    // const body = await req.text()
     const body2 = await req.json()
-    console.log(2, "1: ", body, ", 2: ", body2)
-    const bodyObj = JSON.parse(body)
-    console.log(3, bodyObj)
-    const events: WebhookEvent[] = bodyObj.events
+    console.log(2, body2)
+    // const bodyObj = JSON.parse(body)
+    // console.log(3, bodyObj)
+    // const events: WebhookEvent[] = bodyObj.events
+    const events: WebhookEvent[] = body2.events
     console.log(4, events)
     try {
         await Promise.all(events.map(handleEvent))
