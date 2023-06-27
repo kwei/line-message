@@ -83,14 +83,16 @@ async function handleEvent(event: WebhookEvent) {
                     const db = mongodbClient.db('spendingRecord')
                     const collections = db.collection('meta')
                     const date = new Date()
-                    await collections.insertOne({
+                    const _data = {
                         "userId": event.source.userId,
                         "date": `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}`,
                         "time": `${date.getHours()}:${date.getMinutes()}`,
                         "item": matchRes[2],
                         "type": gptRes,
                         "price": matchRes[1]
-                    }).then((data) => {
+                    }
+                    console.log("To be saved: ", _data)
+                    await collections.insertOne(_data).then((data) => {
                         console.log('inserted data: ', data)
                         res2ClientText.text = `已幫您記錄至 https://line-bucket.vercel.app/Record ，目前記錄的消費種類為 ${gptRes}，若需要更改請至網站進行調整。`
                     }).catch((e) => {
