@@ -40,6 +40,7 @@ async function handleEvent(event: WebhookEvent) {
                 model: 'gpt-3.5-turbo',
                 messages: [{ role: 'user', content: `${message.text}` }]
             })
+            console.log(completion)
 
             const gptRes = completion.data.choices[0].message?.content
             console.log(gptRes)
