@@ -83,8 +83,9 @@ async function handleEvent(event: WebhookEvent) {
                     const db = mongodbClient.db('spendingRecord')
                     const collections = db.collection('meta')
                     const date = new Date()
+                    const userProfile = await client.getProfile(event.source.userId ?? '')
                     const _data = {
-                        "userId": event.source.userId,
+                        "userId": userProfile.userId,
                         "date": `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}`,
                         "time": `${date.getHours()}:${date.getMinutes()}`,
                         "item": matchRes[2],
