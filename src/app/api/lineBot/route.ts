@@ -13,7 +13,7 @@ export async function POST(req: Request, res: NextApiResponse) {
     console.log(1)
     const body2 = await req.body
     console.log(2, body2)
-    console.log(3, readStream(body2))
+    console.log(3, await readStream(body2))
     // const events: WebhookEvent[] = bodyObj.events
     const events: WebhookEvent[] = []
     console.log(4, events)
