@@ -24,7 +24,7 @@ const ALL_CONSUMPTION_TYPE = [
     "other"
 ]
 
-const MONGO_DB_URI = `mongodb+srv://kw:P5RNs51WDNUCAiEU@kw-playround.bplfdql.mongodb.net/?retryWrites=true&w=majority`
+const MONGO_DB_URI = process.env.MONGO_DB_URI ?? ''
 
 const openAIApiConfig = new Configuration({
     apiKey: process.env.OPEN_AI_API_KEY ?? ''
