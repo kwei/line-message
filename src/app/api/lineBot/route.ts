@@ -42,6 +42,7 @@ async function handleEvent(event: WebhookEvent) {
             })
 
             const gptRes = completion.data.choices[0].message?.content
+            console.log(gptRes)
 
             await client.replyMessage(event.replyToken, {
                 type: 'text',
