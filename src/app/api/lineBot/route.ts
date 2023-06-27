@@ -1,6 +1,5 @@
 import {NextApiResponse} from "next"
 import {Client, WebhookEvent} from "@line/bot-sdk"
-import liff from "@line/liff"
 import {NextResponse} from "next/server"
 import {Configuration, OpenAIApi} from "openai"
 import { MongoClient } from "mongodb"
