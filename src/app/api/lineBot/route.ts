@@ -92,9 +92,9 @@ async function handleEvent(event: WebhookEvent) {
                     const userProfile = await client.getProfile(event.source.userId ?? '')
 
                     fetch('https://liff.line.me/1661546903-vPk3jXaw').then(res => {
-                        if (res.ok) return res.json()
+                        if (res.ok) return readStream(res.body)
                     }).then(res => {
-                        console.log(res)
+                        console.log("liff.line.me : ", res)
                     })
 
                     const _data = {
