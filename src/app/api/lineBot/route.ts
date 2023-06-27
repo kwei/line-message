@@ -19,7 +19,6 @@ const client = new Client(config)
 export async function POST(req: Request, _: NextApiResponse) {
     const body = await readStream(req.body)
     const events: WebhookEvent[] = JSON.parse(body).events
-    console.log(4, events)
     try {
         await Promise.all(events.map(handleEvent))
         return NextResponse.json({ status: 'OK' })
@@ -29,21 +28,25 @@ export async function POST(req: Request, _: NextApiResponse) {
 }
 
 async function handleEvent(event: WebhookEvent) {
-    console.log(event.type)
     if (event.type === 'message') {
         const message = event.message
-        console.log(message)
         if (message.type === 'text') {
-            console.log(message.text)
+            console.log("message: ", message.text)
 
             const completion = await openai.createChatCompletion({
                 model: 'gpt-3.5-turbo',
                 messages: [{ role: 'user', content: `${message.text}` }]
+            }).then(res => {
+                if (res.status === 200) return res.data
+                return null
+            }).catch(e => {
+                console.log(e)
+                return null
             })
-            console.log(completion)
+            console.log("completion: ", completion)
 
-            const gptRes = completion.data.choices[0].message?.content
-            console.log(gptRes)
+            const gptRes = completion?.choices[0].message?.content
+            console.log("gptRes: ", gptRes)
 
             await client.replyMessage(event.replyToken, {
                 type: 'text',
