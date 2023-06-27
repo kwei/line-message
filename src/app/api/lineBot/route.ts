@@ -90,12 +90,7 @@ async function handleEvent(event: WebhookEvent) {
                     const _min = date.getMinutes()
 
                     const userProfile = await client.getProfile(event.source.userId ?? '')
-
-                    fetch('https://liff.line.me/1661546903-vPk3jXaw').then(res => {
-                        if (res.ok) return readStream(res.body)
-                    }).then(res => {
-                        console.log("liff.line.me : ", res)
-                    })
+                    console.log("userProfile: ", userProfile)
 
                     const _data = {
                         "userId": userProfile.userId,
