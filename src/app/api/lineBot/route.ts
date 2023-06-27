@@ -1,6 +1,13 @@
-import {NextApiResponse} from "next";
-import {Client, WebhookEvent} from "@line/bot-sdk";
-import {NextResponse} from "next/server";
+import {NextApiResponse} from "next"
+import {Client, WebhookEvent} from "@line/bot-sdk"
+import {NextResponse} from "next/server"
+import {Configuration, OpenAIApi} from "openai"
+
+const openAIApiConfig = new Configuration({
+    apiKey: process.env.OPEN_AI_API_KEY ?? ''
+})
+
+const openai = new OpenAIApi(openAIApiConfig)
 
 const config = {
     channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN ?? '',
@@ -28,9 +35,17 @@ async function handleEvent(event: WebhookEvent) {
         console.log(message)
         if (message.type === 'text') {
             console.log(message.text)
+
+            const completion = await openai.createChatCompletion({
+                model: 'gpt-3.5-turbo',
+                messages: [{ role: 'user', content: `${message.text}` }]
+            })
+
+            const gptRes = completion.data.choices[0].message?.content
+
             await client.replyMessage(event.replyToken, {
                 type: 'text',
-                text: `你是不是講了 ${message.text}`
+                text: `${gptRes}`
             })
         }
     }
