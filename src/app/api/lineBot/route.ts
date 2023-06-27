@@ -53,11 +53,11 @@ async function handleEvent(event: WebhookEvent) {
         if (message.type === 'text') {
             console.log("message: ", message.text)
 
-            const matchRes = message.text.match(/\$([0-9]+) (.*)/g)
+            const matchRes = message.text.match(/\$([0-9]+) (.*)/)
             console.log("matchRes: ", matchRes)
 
             if (matchRes) {
-                const msg2gpt = `根據消費項目(${matchRes[1]})判斷消費類型，所有類型有 ${ALL_CONSUMPTION_TYPE.join(',')}，請擇一。`
+                const msg2gpt = `根據消費項目(${matchRes[2]})判斷消費類型，所有類型有 ${ALL_CONSUMPTION_TYPE.join(',')}，請擇一。`
                 console.log("msg2gpt: ", msg2gpt)
 
                 const completion = await openai.createChatCompletion({
@@ -77,7 +77,7 @@ async function handleEvent(event: WebhookEvent) {
 
                 await client.replyMessage(event.replyToken, {
                     type: 'text',
-                    text: `已幫您記錄至 https://line-bucket.vercel.app/Record，目前記錄的消費種類為${gptRes}，若需要更改請至網站進行調整。`
+                    text: `已幫您記錄至 https://line-bucket.vercel.app/Record ，目前記錄的消費種類為${gptRes}，若需要更改請至網站進行調整。`
                 })
             } else {
                 await client.replyMessage(event.replyToken, {
