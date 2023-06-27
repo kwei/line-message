@@ -9,7 +9,7 @@ const config = {
 
 const client = new Client(config)
 
-export async function POST(req: Request, res: NextApiResponse) {
+export async function POST(req: Request, _: NextApiResponse) {
     const body = await readStream(req.body)
     const events: WebhookEvent[] = JSON.parse(body).events
     console.log(4, events)
@@ -22,7 +22,18 @@ export async function POST(req: Request, res: NextApiResponse) {
 }
 
 async function handleEvent(event: WebhookEvent) {
-    console.log(event)
+    console.log(event.type)
+    if (event.type === 'message') {
+        const message = event.message
+        console.log(message)
+        if (message.type === 'text') {
+            console.log(message.text)
+            await client.replyMessage(event.replyToken, {
+                type: 'text',
+                text: `你是不是講了 ${message.text}`
+            })
+        }
+    }
 }
 
 async function readStream(stream: ReadableStream | null): Promise<string> {
