@@ -3,6 +3,26 @@ import {Client, WebhookEvent} from "@line/bot-sdk"
 import {NextResponse} from "next/server"
 import {Configuration, OpenAIApi} from "openai"
 
+const ALL_CONSUMPTION_TYPE = [
+    "food",
+    "clothing",
+    "housing",
+    "transportation",
+    "education",
+    "entertainment",
+    "daily",
+    "salary",
+    "bonus",
+    "investment",
+    "repayment",
+    "subsidy",
+    "feedback",
+    "medical",
+    "advancePayment",
+    "refund",
+    "other"
+]
+
 const openAIApiConfig = new Configuration({
     apiKey: process.env.OPEN_AI_API_KEY ?? ''
 })
@@ -33,25 +53,38 @@ async function handleEvent(event: WebhookEvent) {
         if (message.type === 'text') {
             console.log("message: ", message.text)
 
-            const completion = await openai.createChatCompletion({
-                model: 'gpt-3.5-turbo',
-                messages: [{ role: 'user', content: `${message.text}` }]
-            }).then(res => {
-                if (res.status === 200) return res.data
-                return null
-            }).catch(e => {
-                console.log(e)
-                return null
-            })
-            console.log("completion: ", completion)
+            const matchRes = message.text.match(/^\$([0-9]+) (.*)/g)
+            console.log("matchRes: ", matchRes)
 
-            const gptRes = completion?.choices[0].message?.content
-            console.log("gptRes: ", gptRes)
+            if (matchRes) {
+                const msg2gpt = `根據消費項目(${matchRes[1]})判斷消費類型，所有類型有 ${ALL_CONSUMPTION_TYPE.join(',')}，請擇一。`
+                console.log("msg2gpt: ", msg2gpt)
 
-            await client.replyMessage(event.replyToken, {
-                type: 'text',
-                text: `${gptRes}`
-            })
+                const completion = await openai.createChatCompletion({
+                    model: 'gpt-3.5-turbo',
+                    messages: [{ role: 'user', content: `${message.text}` }]
+                }).then(res => {
+                    if (res.status === 200) return res.data
+                    return null
+                }).catch(e => {
+                    console.log(e)
+                    return null
+                })
+                console.log("completion: ", completion)
+
+                const gptRes = completion?.choices[0].message?.content
+                console.log("gptRes: ", gptRes)
+
+                await client.replyMessage(event.replyToken, {
+                    type: 'text',
+                    text: '收到!'
+                })
+            } else {
+                await client.replyMessage(event.replyToken, {
+                    type: 'text',
+                    text: '輸入的格式不太對喔，範例：$130 雞腿便當'
+                })
+            }
         }
     }
 }
