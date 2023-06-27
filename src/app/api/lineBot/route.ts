@@ -10,20 +10,14 @@ const config = {
 const client = new Client(config)
 
 export async function POST(req: Request, res: NextApiResponse) {
-    console.log(1)
-    const body2 = await req.body
-    console.log(2, body2)
-    console.log(3, await readStream(body2))
-    // const events: WebhookEvent[] = bodyObj.events
-    const events: WebhookEvent[] = []
+    const body = await readStream(req.body)
+    const events: WebhookEvent[] = JSON.parse(body).events
     console.log(4, events)
     try {
         await Promise.all(events.map(handleEvent))
-        console.log(5)
         return NextResponse.json({ status: 'OK' })
     } catch (e) {
-        console.log(6, e)
-        return NextResponse.json({ error: 'Internal Server Error: ' + e })
+        return NextResponse.json({ status: 'FAIL', message: 'Internal Server Error: ' + e })
     }
 }
 
@@ -36,15 +30,11 @@ async function readStream(stream: ReadableStream | null): Promise<string> {
     const reader = stream.getReader()
     let result = ''
     const decoder = new TextDecoder()
-
     while (true) {
         const { done, value } = await reader.read()
-        console.log(done, value)
         if (done) break
-
         const chunk = decoder.decode(value)
         result += chunk
     }
-
     return result
 }
