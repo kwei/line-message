@@ -91,8 +91,10 @@ async function handleEvent(event: WebhookEvent) {
                     const _min = date.getMinutes()
 
                     const userProfile = await client.getProfile(event.source.userId ?? '')
-                    await initializeLiff()
-                    await login()
+
+                    fetch('https://liff.line.me/1661546903-vPk3jXaw').then(res => {
+                        console.log(res)
+                    })
 
                     const _data = {
                         "userId": userProfile.userId,
@@ -105,7 +107,7 @@ async function handleEvent(event: WebhookEvent) {
                     console.log("To be saved: ", _data)
                     await collections.insertOne(_data).then((data) => {
                         console.log('inserted data: ', data)
-                        res2ClientText.text = `已幫您記錄至 https://line-bucket.vercel.app/Record ，目前記錄的消費種類為 ${gptRes}，若需要更改請至網站進行調整。`
+                        res2ClientText.text = `目前記錄的消費種類為 ${gptRes}，若需要更改請至網站( https://line-bucket.vercel.app/Record )進行調整。`
                     }).catch((e) => {
                         console.log('failed to insert data: ', e)
                         res2ClientText.text ='無法成功新增該筆記錄，您可以去問問開發者是不是在睡覺 :)'
@@ -135,40 +137,4 @@ async function readStream(stream: ReadableStream | null): Promise<string> {
         result += chunk
     }
     return result
-}
-
-async function initializeLiff() {
-    try {
-        await liff.init({ liffId: process.env.LINE_LIFF_ID ?? '' });
-    } catch (error) {
-        console.error('LIFF initialization failed', error);
-    }
-}
-
-async function login() {
-    try {
-        await liff.login();
-        const accessToken = liff.getAccessToken()
-        console.log("accessToken: ", accessToken)
-        await getUserInfo(accessToken)
-    } catch (error) {
-        console.error('Login failed', error)
-    }
-}
-
-async function getUserInfo(accessToken: string | null) {
-    try {
-        const response = await fetch('https://api.line.me/v2/profile', {
-            headers: { Authorization: `Bearer ${accessToken}` },
-        }).then(res => {
-            if (res.ok) return res.json()
-        }).catch(e => {
-            console.log(e)
-        })
-        const userInfo = response.data
-        console.log('User Info:', userInfo)
-        return userInfo
-    } catch (error) {
-        console.error('Failed to retrieve user info', error)
-    }
 }
