@@ -10,18 +10,18 @@ const config = {
 const client = new Client(config)
 
 export async function POST(req: NextRequest, res: NextApiResponse) {
-    console.log(1)
+    console.log(1, req)
     const body = await req.text()
-    console.log(2)
+    console.log(2, body)
     const bodyObj = JSON.parse(body)
-    console.log(3)
+    console.log(3, bodyObj)
     const events: WebhookEvent[] = bodyObj.events
-    console.log(4)
+    console.log(4, events)
     try {
         await Promise.all(events.map(handleEvent))
         console.log(5)
     } catch (e) {
-        console.log(6)
+        console.log(6, e)
         return NextResponse.json({ error: 'Internal Server Error: ' + e })
     }
 }
