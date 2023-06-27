@@ -19,6 +19,7 @@ export async function POST(req: Request, res: NextApiResponse) {
     try {
         await Promise.all(events.map(handleEvent))
         console.log(4)
+        return NextResponse.json({ status: 'OK' })
     } catch (e) {
         console.log(5, e)
         return NextResponse.json({ error: 'Internal Server Error: ' + e })
