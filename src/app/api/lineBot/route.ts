@@ -2,6 +2,7 @@ import {NextApiResponse} from "next"
 import {Client, WebhookEvent} from "@line/bot-sdk"
 import {NextResponse} from "next/server"
 import {Configuration, OpenAIApi} from "openai"
+import { MongoClient } from "mongodb"
 
 const ALL_CONSUMPTION_TYPE = [
     "food",
@@ -22,6 +23,8 @@ const ALL_CONSUMPTION_TYPE = [
     "refund",
     "other"
 ]
+
+const MONGO_DB_URI = `mongodb+srv://kw:P5RNs51WDNUCAiEU@kw-playround.bplfdql.mongodb.net/?retryWrites=true&w=majority`
 
 const openAIApiConfig = new Configuration({
     apiKey: process.env.OPEN_AI_API_KEY ?? ''
@@ -56,6 +59,11 @@ async function handleEvent(event: WebhookEvent) {
             const matchRes = message.text.match(/\$([0-9]+) (.*)/)
             console.log("matchRes: ", matchRes)
 
+            const res2ClientText: { type: 'text', text: string } = {
+                type: 'text',
+                text: ''
+            }
+
             if (matchRes) {
                 const msg2gpt = `根據消費項目(${matchRes[2]})判斷消費類型，所有類型有 ${ALL_CONSUMPTION_TYPE.join(',')}，請擇一。`
                 console.log("msg2gpt: ", msg2gpt)
@@ -75,16 +83,31 @@ async function handleEvent(event: WebhookEvent) {
                 const gptRes = completion?.choices[0].message?.content
                 console.log("gptRes: ", gptRes)
 
-                await client.replyMessage(event.replyToken, {
-                    type: 'text',
-                    text: `已幫您記錄至 https://line-bucket.vercel.app/Record ，目前記錄的消費種類為${gptRes}，若需要更改請至網站進行調整。`
-                })
+                if (gptRes) {
+                    const mongodbClient = new MongoClient(MONGO_DB_URI)
+                    const db = mongodbClient.db('spendingRecord')
+                    const collections = db.collection('meta')
+                    const date = new Date()
+                    await collections.insertOne({
+                        "userId": event.source.userId,
+                        "date": `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}`,
+                        "time": `${date.getHours()}:${date.getMinutes()}`,
+                        "item": matchRes[2],
+                        "type": gptRes,
+                        "price": matchRes[1]
+                    }).then(() => {
+                        res2ClientText.text = `已幫您記錄至 https://line-bucket.vercel.app/Record ，目前記錄的消費種類為${gptRes}，若需要更改請至網站進行調整。`
+                    }).catch(() => {
+                        res2ClientText.text ='無法成功新增該筆記錄，您可以去問問開發者是不是在睡覺 :)'
+                    })
+                } else {
+                    res2ClientText.text = '我看不懂您消費的項目是啥鬼 :('
+                }
             } else {
-                await client.replyMessage(event.replyToken, {
-                    type: 'text',
-                    text: '輸入的格式不太對喔，範例：$130 雞腿便當'
-                })
+                res2ClientText.text = '輸入的格式不太對喔，貼心的我給您一個範例：$130 雞腿便當'
             }
+
+            await client.replyMessage(event.replyToken, [res2ClientText])
         }
     }
 }
