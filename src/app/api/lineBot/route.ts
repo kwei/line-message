@@ -57,8 +57,6 @@ async function handleEvent(event: WebhookEvent) {
             console.log("message: ", message.text)
 
             const matchRes = message.text.match(/\$([0-9]+) (.*)/)
-            console.log("matchRes: ", matchRes)
-
             const res2ClientText: { type: 'text', text: string } = {
                 type: 'text',
                 text: ''
@@ -66,7 +64,6 @@ async function handleEvent(event: WebhookEvent) {
 
             if (matchRes) {
                 const msg2gpt = `根據消費項目(${matchRes[2]})判斷消費類型，所有類型有 ${ALL_CONSUMPTION_TYPE.join(',')}，請擇一。`
-                console.log("msg2gpt: ", msg2gpt)
 
                 const completion = await openai.createChatCompletion({
                     model: 'gpt-3.5-turbo',
@@ -78,10 +75,8 @@ async function handleEvent(event: WebhookEvent) {
                     console.log(e)
                     return null
                 })
-                console.log("completion: ", completion)
 
                 const gptRes = completion?.choices[0].message?.content
-                console.log("gptRes: ", gptRes)
 
                 if (gptRes) {
                     const mongodbClient = new MongoClient(MONGO_DB_URI)
@@ -95,18 +90,21 @@ async function handleEvent(event: WebhookEvent) {
                         "item": matchRes[2],
                         "type": gptRes,
                         "price": matchRes[1]
-                    }).then(() => {
+                    }).then((data) => {
+                        console.log('inserted data: ', data)
                         res2ClientText.text = `已幫您記錄至 https://line-bucket.vercel.app/Record ，目前記錄的消費種類為 ${gptRes}，若需要更改請至網站進行調整。`
-                    }).catch(() => {
+                    }).catch((e) => {
+                        console.log('failed to insert data: ', e)
                         res2ClientText.text ='無法成功新增該筆記錄，您可以去問問開發者是不是在睡覺 :)'
                     })
                 } else {
+                    console.log("gptRes: ", gptRes)
                     res2ClientText.text = '我看不懂您消費的項目是啥鬼 :('
                 }
             } else {
+                console.log("matchRes: ", matchRes)
                 res2ClientText.text = '輸入的格式不太對喔，貼心的我給您一個範例：$130 雞腿便當'
             }
-
             await client.replyMessage(event.replyToken, [res2ClientText])
         }
     }
