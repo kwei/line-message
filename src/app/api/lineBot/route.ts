@@ -78,6 +78,8 @@ async function handleEvent(event: WebhookEvent) {
 
                 const gptRes = completion?.choices[0].message?.content
 
+                console.log("Parsed type: ", gptRes)
+
                 if (gptRes) {
                     const mongodbClient = new MongoClient(MONGO_DB_URI)
                     const db = mongodbClient.db('spendingRecord')
