@@ -100,9 +100,9 @@ async function handleEvent(event: WebhookEvent) {
                         "price": Number(matchRes[1])
                     }
                     console.log("To be saved: ", _data)
-                    await collections.insertOne(_data).then((data) => {
-                        console.log('inserted data: ', data)
-                        res2ClientText.text = `目前記錄的消費種類為 ${gptRes}，若需要更改請至網站( https://line-bucket.vercel.app/Record )進行調整。`
+                    await collections.insertOne(_data).then((res) => {
+                        console.log('inserted result: ', res)
+                        res2ClientText.text = `目前記錄的消費種類為 ${gptRes}，消費日期會根據時區不同而有所差異，若需要更改請至網站( https://line-bucket.vercel.app/Record )進行調整。`
                     }).catch((e) => {
                         console.log('failed to insert data: ', e)
                         res2ClientText.text ='無法成功新增該筆記錄，您可以去問問開發者是不是在睡覺 :)'
@@ -115,6 +115,7 @@ async function handleEvent(event: WebhookEvent) {
                 console.log("matchRes: ", matchRes)
                 res2ClientText.text = '輸入的格式不太對喔，貼心的我給您一個範例：$130 雞腿便當'
             }
+            console.log("Reply message: ", res2ClientText.text)
             await client.replyMessage(event.replyToken, [res2ClientText])
         }
     }
