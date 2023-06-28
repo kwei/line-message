@@ -63,7 +63,7 @@ async function handleEvent(event: WebhookEvent) {
             }
 
             if (matchRes) {
-                const msg2gpt = `根據消費項目(${matchRes[2]})判斷消費類型，所有類型有 ${ALL_CONSUMPTION_TYPE.join(',')}，請擇一。`
+                const msg2gpt = `根據消費項目(${matchRes[2]})判斷消費類型，所有類型有 ${ALL_CONSUMPTION_TYPE.join(',')}，請擇一。例如：food`
 
                 const completion = await openai.createChatCompletion({
                     model: 'gpt-3.5-turbo',
