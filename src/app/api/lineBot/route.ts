@@ -93,8 +93,8 @@ async function handleEvent(event: WebhookEvent) {
 
                     const _data = {
                         "userId": event.source.userId,
-                        "date": `${_year}/${_month > 10 ? _month : '0'+_month}/${_day > 10 ? _day : '0'+_day}`,
-                        "time": `${_hour > 10 ? _hour : '0'+_hour}:${_min > 10 ? _min : '0'+_min}`,
+                        "date": `${_year}/${_month > 9 ? _month : '0'+_month}/${_day > 9 ? _day : '0'+_day}`,
+                        "time": `${_hour > 9 ? _hour : '0'+_hour}:${_min > 9 ? _min : '0'+_min}`,
                         "item": matchRes[2],
                         "type": gptRes,
                         "price": Number(matchRes[1])
