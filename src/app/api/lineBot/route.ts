@@ -91,6 +91,7 @@ async function handleEvent(event: WebhookEvent) {
                     const _hour = date.getHours()
                     const _min = date.getMinutes()
 
+                    console.log("Get userProfile")
                     const userProfile = await client.getProfile(event.source.userId ?? '')
                     console.log("userProfile: ", userProfile)
 
